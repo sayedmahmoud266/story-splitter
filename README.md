@@ -15,7 +15,7 @@
 
 A powerful, browser-based video splitter that runs entirely on your device. No uploads, no tracking, no servers - just pure client-side video processing.
 
-[Live Demo](https://sayedmahmoud266.github.io/story-splitter) • [Report Bug](https://github.com/sayedmahmoud266/story-splitter/issues) • [Request Feature](https://github.com/sayedmahmoud266/story-splitter/issues)
+[Live Demo](https://story-splitter.netlify.app) • [Report Bug](https://github.com/sayedmahmoud266/story-splitter/issues) • [Request Feature](https://github.com/sayedmahmoud266/story-splitter/issues)
 
 </div>
 

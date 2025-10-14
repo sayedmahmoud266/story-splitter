@@ -1,0 +1,41 @@
+{
+  "name": "story-splitter",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Split your videos into perfect segments - Free, open source, and privacy-focused video splitter",
+  "author": "sayedmahmoud266 <https://sayedmahmoud266.website>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sayedmahmoud266/story-splitter"
+  },
+  "keywords": [
+    "video",
+    "splitter",
+    "editor",
+    "browser",
+    "client-side",
+    "privacy",
+    "open-source"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.462.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.1",
+    "@tailwindcss/vite": "^4.0.0-beta.6",
+    "tailwindcss": "^4.0.0-beta.6"
+  }
+}

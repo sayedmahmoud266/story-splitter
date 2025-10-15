@@ -5,6 +5,25 @@ All notable changes to the Story Splitter project will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-10-15
+
+### 🔧 Bug Fix
+
+**Fixed TypeScript Build Error**
+
+### Fixed
+- **SharedArrayBuffer Type Error**: Fixed TypeScript compilation error in `videoSplitter.ts`
+- **Blob Creation**: Convert FFmpeg FileData to regular Uint8Array for Blob compatibility
+- **Production Builds**: Ensures clean builds without type errors
+
+### Technical Details
+```typescript
+// Fixed: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BlobPart'
+const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: `video/${fileExtension}` })
+```
+
+---
+
 ## [0.2.0] - 2025-10-15
 
 ### 📱 PWA Update: Offline Support & Installability

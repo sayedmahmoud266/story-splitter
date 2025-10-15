@@ -97,7 +97,8 @@ export async function splitVideo(
 
       // Read the output file
       const data = await ffmpeg.readFile(outputFileName)
-      const blob = new Blob([data], { type: `video/${fileExtension}` })
+      // Convert to regular Uint8Array to avoid SharedArrayBuffer issues
+      const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: `video/${fileExtension}` })
 
       segmentsWithBlobs.push({ ...segment, blob })
 

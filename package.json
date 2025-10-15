@@ -1,7 +1,7 @@
 {
   "name": "story-splitter",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Split your videos into perfect segments - Free, open source, and privacy-focused video splitter",
   "author": "sayedmahmoud266 <https://sayedmahmoud266.website>",

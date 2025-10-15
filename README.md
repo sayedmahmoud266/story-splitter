@@ -13,7 +13,7 @@
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/sayedmahmoud266)
 
-A powerful, browser-based video splitter powered by **FFmpeg.wasm** that runs entirely on your device. Professional-grade video processing with **zero quality loss**. No uploads, no tracking, no servers - just pure client-side processing.
+A powerful **Progressive Web App** for video splitting powered by **FFmpeg.wasm**. Professional-grade video processing with **zero quality loss** that works **100% offline**. Install as a native app on any device. No uploads, no tracking, no servers - just pure client-side processing.
 
 [Live Demo](https://story-splitter.netlify.app) • [Report Bug](https://github.com/sayedmahmoud266/story-splitter/issues) • [Request Feature](https://github.com/sayedmahmoud266/story-splitter/issues)
 
@@ -49,6 +49,14 @@ A powerful, browser-based video splitter powered by **FFmpeg.wasm** that runs en
 - **No Uploads**: Your videos never leave your device
 - **No Tracking**: Zero data collection or analytics
 - **Open Source**: Full source code available for verification
+
+### 📱 Progressive Web App
+- **Install Anywhere**: Add to desktop (Windows, Mac, Linux) or home screen (iOS, Android)
+- **100% Offline**: Works completely offline after first visit
+- **Native Experience**: Runs like a native app when installed
+- **Auto Updates**: Automatic updates with user notification
+- **Fast Loading**: Instant loading with service worker caching
+- **FFmpeg Offline**: Even FFmpeg.wasm works offline (cached for 1 year)
 
 ## Getting Started
 

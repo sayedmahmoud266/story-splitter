@@ -5,6 +5,8 @@ import ExportView from './components/ExportView'
 import Footer from './components/Footer'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import LicenseModal from './components/LicenseModal'
+import InstallPrompt from './components/InstallPrompt'
+import PWAUpdatePrompt from './components/PWAUpdatePrompt'
 
 export type AppView = 'upload' | 'editor' | 'export'
 
@@ -106,6 +108,12 @@ function App() {
       {/* Modals */}
       {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
       {showLicense && <LicenseModal onClose={() => setShowLicense(false)} />}
+
+      {/* Install Prompt */}
+      <InstallPrompt />
+      
+      {/* PWA Update Prompt */}
+      <PWAUpdatePrompt />
     </div>
   )
 }

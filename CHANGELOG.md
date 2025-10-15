@@ -5,6 +5,49 @@ All notable changes to the Story Splitter project will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-10-15
+
+### 📱 PWA Update: Offline Support & Installability
+
+**NEW**: Story Splitter is now a Progressive Web App!
+
+### ✨ Added
+- **PWA Support**: Full Progressive Web App functionality
+- **Offline Mode**: Works completely offline after first visit
+- **Install Prompt**: Smart install banner for desktop and mobile
+- **Update Notifications**: Automatic update detection with reload prompt
+- **App Icons**: Proper manifest with app icons for all platforms
+- **Standalone Mode**: Runs like a native app when installed
+- **Service Worker**: Caches all assets for offline use
+- **FFmpeg Caching**: CDN files cached for 1 year (offline FFmpeg!)
+
+### 🚀 Features
+- **Install on Desktop**: Add to desktop/dock on Windows, Mac, Linux
+- **Install on Mobile**: Add to home screen on iOS and Android
+- **Offline Processing**: Process videos without internet connection
+- **Auto Updates**: Automatic service worker updates with user prompt
+- **Fast Loading**: Instant loading after first visit
+- **Background Sync**: Service worker keeps app updated
+
+### 🔧 Technical Implementation
+- **vite-plugin-pwa**: PWA plugin for Vite
+- **Workbox**: Google's service worker library
+- **CacheFirst Strategy**: FFmpeg CDN files cached aggressively
+- **Auto Registration**: Service worker auto-registers and updates
+- **Manifest**: Complete web app manifest with icons and metadata
+
+### 📦 Dependencies
+- Added `vite-plugin-pwa@^0.20.5`
+- Added `workbox-window@^7.3.0`
+
+### 🎨 UI Enhancements
+- Install prompt with slide-up animation
+- Update notification with slide-down animation
+- Dismissible prompts with 7-day memory
+- Beautiful gradient cards for prompts
+
+---
+
 ## [0.1.0] - 2025-10-15
 
 ### 🚀 Major Update: FFmpeg.wasm Integration

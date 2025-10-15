@@ -13,7 +13,7 @@
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/sayedmahmoud266)
 
-A powerful, browser-based video splitter that runs entirely on your device. No uploads, no tracking, no servers - just pure client-side video processing.
+A powerful, browser-based video splitter powered by **FFmpeg.wasm** that runs entirely on your device. Professional-grade video processing with **zero quality loss**. No uploads, no tracking, no servers - just pure client-side processing.
 
 [Live Demo](https://story-splitter.netlify.app) • [Report Bug](https://github.com/sayedmahmoud266/story-splitter/issues) • [Request Feature](https://github.com/sayedmahmoud266/story-splitter/issues)
 
@@ -21,15 +21,34 @@ A powerful, browser-based video splitter that runs entirely on your device. No u
 
 ---
 
-## Features
+## ✨ Features
 
-- **Drag & Drop Upload**: Easy video file upload with drag-and-drop support
-- **Custom Video Player**: Built-in video player with custom controls
+### 🎬 Professional Video Processing
+- **FFmpeg.wasm Powered**: Industry-standard FFmpeg running in your browser via WebAssembly
+- **Zero Quality Loss**: Uses stream copy (`-c copy`) - no re-encoding, no quality degradation
+- **Original Format Preservation**: Keeps your video's original codec, bitrate, and quality
+- **Universal Format Support**: Works with MP4, AVI, MOV, MKV, WebM, and all formats FFmpeg supports
+- **Perfect Audio**: Maintains original audio codec and quality
+
+### 🎯 Smart Splitting
+- **Drag & Drop Upload**: Easy video file upload with visual feedback
+- **Intelligent Segmentation**: Automatic split point calculation based on max length
 - **Manual Adjustment**: Drag split markers to fine-tune segment boundaries
+- **Smart Validation**: Automatically merges segments shorter than 1 second
 - **Real-time Preview**: See segment durations as you adjust split points
-- **Client-Side Processing**: All video processing happens in the browser - no uploads required
+
+### 🚀 User Experience
+- **Custom Video Player**: Built-in player with full playback controls
+- **Progress Tracking**: Real-time progress indicator during processing
 - **Batch Download**: Download all segments at once or individually
-- **Responsive Design**: Works seamlessly on all screen sizes
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Modern UI**: Beautiful gradient design with glassmorphism effects
+
+### 🔒 Privacy First
+- **100% Client-Side**: All processing happens in your browser
+- **No Uploads**: Your videos never leave your device
+- **No Tracking**: Zero data collection or analytics
+- **Open Source**: Full source code available for verification
 
 ## Getting Started
 
@@ -59,35 +78,50 @@ npm run preview
 
 ## How to Use
 
-1. **Upload Video**: Drag and drop a video file or click to select one
 2. **Adjust Settings**: Choose maximum segment length (15s, 30s, 59s, or custom)
 3. **Fine-tune Splits**: Drag red markers on the seek bar to adjust split points
 4. **Export**: Click "Export & Download" to process the video
 5. **Download**: Download individual segments or all at once
 
-## Technology Stack
+## Tech Stack
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Tailwind CSS v4** - Styling
-- **Lucide React** - Icons
-- **MediaRecorder API** - Video processing
+### Core Technologies
+- **React 18** - Modern UI framework with hooks
+- **TypeScript** - Type-safe development
+- **Vite** - Lightning-fast build tool and dev server
+- **Tailwind CSS v4** - Utility-first styling
+- **Lucide React** - Beautiful icon library
+
+### Video Processing
+- **FFmpeg.wasm** - Professional video processing via WebAssembly
+- **@ffmpeg/core** - FFmpeg WebAssembly core
+- **@ffmpeg/util** - FFmpeg utility functions
+
+- **File API** - File handling and blob creation
+- **SharedArrayBuffer** - Required for FFmpeg.wasm
+- **WebAssembly** - High-performance video processing
 - **Canvas API** - Frame capture
 
 ## Browser Support
 
-Requires a modern browser with support for:
-- MediaRecorder API
-- Canvas API
-- File API
-- Web Audio API
+### Requirements
+- **SharedArrayBuffer** support (required for FFmpeg.wasm)
+- **WebAssembly** support
+- **Modern browser** (Chrome 90+, Firefox 85+, Safari 15.2+, Edge 90+)
+- **HTTPS** (or localhost for development)
+
+### Supported Browsers
+- Chrome/Edge 90+
+- Firefox 85+
+- Safari 15.2+ (with proper headers)
+- Older browsers without SharedArrayBuffer support
+
+**Note**: SharedArrayBuffer requires Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers, which are automatically configured in development.
 
 ## Privacy & Security
 
 - **No Data Collection**: We don't collect, store, or transmit any of your data
 - **Client-Side Processing**: All video processing happens in your browser
-- **No Uploads**: Your videos never leave your device
 - **Open Source**: Full source code available for review
 
 ## 🎨 Design & Development

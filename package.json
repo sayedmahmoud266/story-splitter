@@ -1,7 +1,7 @@
 {
   "name": "story-splitter",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "description": "Split your videos into perfect segments - Free, open source, and privacy-focused video splitter",
   "author": "sayedmahmoud266 <https://sayedmahmoud266.website>",
@@ -25,17 +25,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "lucide-react": "^0.462.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.462.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0-beta.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "tailwindcss": "^4.0.0-beta.6",
     "typescript": "^5.6.3",
-    "vite": "^6.0.1",
-    "@tailwindcss/vite": "^4.0.0-beta.6",
-    "tailwindcss": "^4.0.0-beta.6"
+    "vite": "^6.0.1"
   }
 }

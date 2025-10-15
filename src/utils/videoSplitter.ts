@@ -1,155 +1,131 @@
 import { VideoSegment } from '../App'
+import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { toBlobURL } from '@ffmpeg/util'
+
+// Singleton FFmpeg instance
+let ffmpegInstance: FFmpeg | null = null
+let ffmpegLoaded = false
+
+// Format time for FFmpeg (HH:MM:SS.mmm)
+function formatTimeForFFmpeg(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
+  const milliseconds = Math.floor((seconds % 1) * 1000)
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`
+}
+
+// Initialize FFmpeg instance
+async function getFFmpeg(): Promise<FFmpeg> {
+  if (ffmpegInstance && ffmpegLoaded) {
+    return ffmpegInstance
+  }
+
+  if (!ffmpegInstance) {
+    ffmpegInstance = new FFmpeg()
+    
+    // Enable logging for debugging
+    ffmpegInstance.on('log', ({ message }) => {
+      console.log('[FFmpeg]', message)
+    })
+  }
+
+  if (!ffmpegLoaded) {
+    try {
+      // Use jsdelivr CDN which is more reliable
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm'
+      
+      await ffmpegInstance.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+      })
+      
+      ffmpegLoaded = true
+      console.log('[FFmpeg] Loaded successfully')
+    } catch (error) {
+      console.error('[FFmpeg] Load error:', error)
+      throw new Error(`Failed to load FFmpeg: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  return ffmpegInstance
+}
 
 export async function splitVideo(
   videoFile: File,
   segments: VideoSegment[],
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (current: number, total: number) => void,
+  onFFmpegLoad?: () => void
 ): Promise<VideoSegment[]> {
-  const videoUrl = URL.createObjectURL(videoFile)
-  
   try {
-    const segmentsWithBlobs: VideoSegment[] = []
+    // Load FFmpeg
+    const ffmpeg = await getFFmpeg()
     
-    // Process segments sequentially to track progress
+    if (onFFmpegLoad) {
+      onFFmpegLoad()
+    }
+
+    // Get file extension from original file
+    const fileExtension = videoFile.name.split('.').pop() || 'mp4'
+    const inputFileName = `input.${fileExtension}`
+    
+    // Write input file to FFmpeg virtual file system
+    const fileData = await videoFile.arrayBuffer()
+    await ffmpeg.writeFile(inputFileName, new Uint8Array(fileData))
+
+    const segmentsWithBlobs: VideoSegment[] = []
+
+    // Process segments sequentially
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i]
-      const blob = await extractSegment(videoUrl, segment.start, segment.end)
-      segmentsWithBlobs.push({ ...segment, blob })
+      const outputFileName = `output_${i}.${fileExtension}`
       
+      const startTime = formatTimeForFFmpeg(segment.start)
+      const duration = formatTimeForFFmpeg(segment.duration)
+
+      // Use FFmpeg to extract segment
+      // -ss: start time, -t: duration, -c copy: copy streams without re-encoding (fast & lossless)
+      await ffmpeg.exec([
+        '-i', inputFileName,
+        '-ss', startTime,
+        '-t', duration,
+        '-c', 'copy',
+        '-avoid_negative_ts', 'make_zero',
+        outputFileName
+      ])
+
+      // Read the output file
+      const data = await ffmpeg.readFile(outputFileName)
+      const blob = new Blob([data], { type: `video/${fileExtension}` })
+
+      segmentsWithBlobs.push({ ...segment, blob })
+
+      // Clean up output file
+      await ffmpeg.deleteFile(outputFileName)
+
       // Report progress
       if (onProgress) {
         onProgress(i + 1, segments.length)
       }
     }
-    
+
+    // Clean up input file
+    await ffmpeg.deleteFile(inputFileName)
+
     return segmentsWithBlobs
-  } finally {
-    URL.revokeObjectURL(videoUrl)
+  } catch (error) {
+    console.error('FFmpeg processing error:', error)
+    throw new Error(`Video processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
-async function extractSegment(
-  videoUrl: string,
-  startTime: number,
-  endTime: number
-): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video')
-    video.src = videoUrl
-    video.crossOrigin = 'anonymous'
-    video.playsInline = true
-    
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    
-    if (!ctx) {
-      reject(new Error('Could not get canvas context'))
-      return
-    }
+// Check if FFmpeg is supported in the current browser
+export function isFFmpegSupported(): boolean {
+  return typeof SharedArrayBuffer !== 'undefined'
+}
 
-    let mediaRecorder: MediaRecorder | null = null
-    const chunks: Blob[] = []
-    let animationFrameId: number | null = null
-
-    video.addEventListener('loadedmetadata', () => {
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-
-      // Create a stream from the canvas - don't specify FPS, let it be driven by requestAnimationFrame
-      const stream = canvas.captureStream()
-      
-      // Add audio track if available
-      const audioContext = new AudioContext()
-      const source = audioContext.createMediaElementSource(video)
-      const destination = audioContext.createMediaStreamDestination()
-      
-      // Create a gain node set to 0 to prevent playback but allow capture
-      const gainNode = audioContext.createGain()
-      gainNode.gain.value = 0 // Silent output
-      
-      source.connect(destination) // For recording
-      source.connect(gainNode) // For silent monitoring
-      gainNode.connect(audioContext.destination) // Connect to output but with 0 gain
-      
-      if (destination.stream.getAudioTracks().length > 0) {
-        destination.stream.getAudioTracks().forEach(track => {
-          stream.addTrack(track)
-        })
-      }
-
-      // Set up MediaRecorder with higher bitrate for better quality
-      let options: MediaRecorderOptions = { 
-        mimeType: 'video/webm;codecs=vp9,opus',
-        videoBitsPerSecond: 5000000 // 5 Mbps
-      }
-      
-      try {
-        mediaRecorder = new MediaRecorder(stream, options)
-      } catch (e) {
-        // Fallback to vp8
-        try {
-          options = { 
-            mimeType: 'video/webm;codecs=vp8,opus',
-            videoBitsPerSecond: 5000000
-          }
-          mediaRecorder = new MediaRecorder(stream, options)
-        } catch (e2) {
-          // Fallback to default codec
-          mediaRecorder = new MediaRecorder(stream, { videoBitsPerSecond: 5000000 })
-        }
-      }
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunks.push(e.data)
-        }
-      }
-
-      mediaRecorder.onstop = () => {
-        if (animationFrameId !== null) {
-          cancelAnimationFrame(animationFrameId)
-        }
-        const blob = new Blob(chunks, { type: 'video/webm' })
-        resolve(blob)
-        audioContext.close()
-      }
-
-      // Start recording
-      video.currentTime = startTime
-    })
-
-    video.addEventListener('seeked', () => {
-      if (mediaRecorder && mediaRecorder.state === 'inactive') {
-        mediaRecorder.start(100) // Collect data every 100ms
-        video.playbackRate = 1.0 // Ensure normal playback speed
-        video.play()
-        // Start the animation loop for consistent frame capture
-        captureFrame()
-      }
-    })
-
-    // Use requestAnimationFrame for consistent frame capture
-    const captureFrame = () => {
-      if (video.currentTime >= endTime) {
-        video.pause()
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-          mediaRecorder.stop()
-        }
-        return
-      }
-      
-      if (!video.paused && !video.ended) {
-        // Draw current frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        // Request next frame
-        animationFrameId = requestAnimationFrame(captureFrame)
-      }
-    }
-
-    video.addEventListener('error', () => {
-      reject(new Error('Video loading error'))
-    })
-
-    video.load()
-  })
+// Get FFmpeg loading status
+export function isFFmpegLoaded(): boolean {
+  return ffmpegLoaded
 }

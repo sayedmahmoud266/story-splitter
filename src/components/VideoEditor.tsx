@@ -29,6 +29,7 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
   const [videoUrl, setVideoUrl] = useState<string>('')
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState({ current: 0, total: 0 })
+  const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false)
 
   useEffect(() => {
     const url = URL.createObjectURL(videoFile)
@@ -180,6 +181,7 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
 
   const handleExport = async () => {
     setIsExporting(true)
+    setIsLoadingFFmpeg(true)
     setExportProgress({ current: 0, total: 0 })
     try {
       const segments = getSegments()
@@ -190,15 +192,19 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
         segments,
         (current, total) => {
           setExportProgress({ current, total })
+        },
+        () => {
+          setIsLoadingFFmpeg(false)
         }
       )
       
       onExport(segmentsWithBlobs)
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Failed to export video segments')
+      alert(`Failed to export video segments: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsExporting(false)
+      setIsLoadingFFmpeg(false)
       setExportProgress({ current: 0, total: 0 })
     }
   }
@@ -375,12 +381,27 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
             </div>
           </div>
 
+          {/* FFmpeg Loading */}
+          {isExporting && isLoadingFFmpeg && (
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
+                <span className="text-white font-semibold">
+                  Loading FFmpeg.wasm...
+                </span>
+              </div>
+              <p className="text-cyan-200/80 text-sm mt-2 text-center">
+                This may take a moment on first use
+              </p>
+            </div>
+          )}
+
           {/* Export Progress */}
-          {isExporting && exportProgress.total > 0 && (
+          {isExporting && !isLoadingFFmpeg && exportProgress.total > 0 && (
             <div className="bg-white/5 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-white font-semibold">
-                  Processing segments...
+                  Processing segments with FFmpeg...
                 </span>
                 <span className="text-cyan-300">
                   {exportProgress.current} / {exportProgress.total}

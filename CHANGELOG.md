@@ -5,6 +5,46 @@ All notable changes to the Story Splitter project will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2025-10-15
+
+### 🚀 Major Update: FFmpeg.wasm Integration
+
+**BREAKING CHANGE**: Replaced canvas-based video processing with professional FFmpeg.wasm
+
+### ✨ Added
+- **FFmpeg.wasm Integration**: Professional video processing using WebAssembly
+- **Lossless Splitting**: Uses `-c copy` for stream copying without re-encoding
+- **Original Format Preservation**: Maintains original video codec and quality
+- **FFmpeg Loading Indicator**: Visual feedback during FFmpeg initialization
+- **Better Error Handling**: Comprehensive error messages for FFmpeg operations
+
+### 🎯 Improved
+- **Video Quality**: No quality loss - uses stream copy instead of re-encoding
+- **Processing Speed**: Significantly faster with `-c copy` (no transcoding)
+- **Format Support**: Supports all formats FFmpeg supports (MP4, AVI, MOV, MKV, etc.)
+- **Audio Quality**: Perfect audio preservation with original codec
+- **File Size**: Smaller output files due to no re-encoding overhead
+
+### 🔧 Technical Changes
+- Replaced MediaRecorder API with FFmpeg.wasm
+- Removed Canvas API frame capture
+- Removed Web Audio API gain nodes
+- Added SharedArrayBuffer support requirements
+- Updated Vite config with COOP/COEP headers
+- Added FFmpeg singleton pattern for efficiency
+
+### 📦 Dependencies
+- Added `@ffmpeg/ffmpeg@^0.12.10`
+- Added `@ffmpeg/core@^0.12.6`
+- Added `@ffmpeg/util@^0.12.1`
+
+### ⚠️ Requirements
+- Browser must support SharedArrayBuffer
+- HTTPS required for production (or localhost for development)
+- Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers required
+
+---
+
 ## [0.0.1] - 2025-10-15
 
 ### 🎉 Initial Release

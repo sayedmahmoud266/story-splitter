@@ -85,10 +85,11 @@ export async function splitVideo(
       const duration = formatTimeForFFmpeg(segment.duration)
 
       // Use FFmpeg to extract segment
-      // -ss: start time, -t: duration, -c copy: copy streams without re-encoding (fast & lossless)
+      // -ss before -i: input-side seek to nearest keyframe (avoids black frames from non-keyframe cuts)
+      // -c copy: copy streams without re-encoding (fast & lossless)
       await ffmpeg.exec([
-        '-i', inputFileName,
         '-ss', startTime,
+        '-i', inputFileName,
         '-t', duration,
         '-c', 'copy',
         '-avoid_negative_ts', 'make_zero',

@@ -5,6 +5,28 @@ All notable changes to the Story Splitter project will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-02-20
+
+### 🔧 Bug Fix
+
+**Fixed Black Frames at the Start of Split Segments**
+
+### Fixed
+- **Black Screen on Segment Start**: Eliminated black frames appearing at the beginning of each exported segment
+- **Input-Side Seeking**: Moved the `-ss` flag before `-i` in the FFmpeg command so FFmpeg seeks to the nearest keyframe *before* the requested timestamp, ensuring the output always starts on a valid keyframe
+- **Stream Copy Compatibility**: Previously, using `-ss` after `-i` (output-side seek) with `-c copy` caused FFmpeg to begin copying from a non-keyframe, which video decoders cannot render — resulting in a black screen until the next keyframe
+
+### Technical Details
+```typescript
+// Before (output-side seek — causes black frames with -c copy):
+await ffmpeg.exec(['-i', inputFileName, '-ss', startTime, '-t', duration, '-c', 'copy', ...])
+
+// After (input-side seek — snaps to nearest keyframe, no black frames):
+await ffmpeg.exec(['-ss', startTime, '-i', inputFileName, '-t', duration, '-c', 'copy', ...])
+```
+
+---
+
 ## [0.2.1] - 2025-10-15
 
 ### 🔧 Bug Fix

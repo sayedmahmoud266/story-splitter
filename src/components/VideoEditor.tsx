@@ -30,6 +30,7 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState({ current: 0, total: 0 })
   const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false)
+  const [accurateMode, setAccurateMode] = useState(false)
 
   useEffect(() => {
     const url = URL.createObjectURL(videoFile)
@@ -188,14 +189,15 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
       setExportProgress({ current: 0, total: segments.length })
       
       const segmentsWithBlobs = await splitVideo(
-        videoFile, 
+        videoFile,
         segments,
         (current, total) => {
           setExportProgress({ current, total })
         },
         () => {
           setIsLoadingFFmpeg(false)
-        }
+        },
+        accurateMode
       )
       
       onExport(segmentsWithBlobs)
@@ -296,6 +298,39 @@ export default function VideoEditor({ videoFile, onExport, onCancel }: VideoEdit
               </div>
             )}
           </div>
+
+          {/* Split Mode Toggle */}
+          <div className="bg-white/5 rounded-lg p-4">
+            <h3 className="text-white font-semibold mb-3">Split Mode</h3>
+            <div className="flex rounded-lg overflow-hidden border border-white/10 w-fit">
+              <button
+                onClick={() => setAccurateMode(false)}
+                className={`px-5 py-2 text-sm font-medium transition-colors ${
+                  !accurateMode
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+                    : 'bg-white/10 text-cyan-200 hover:bg-white/20'
+                }`}
+              >
+                ⚡ Fast
+              </button>
+              <button
+                onClick={() => setAccurateMode(true)}
+                className={`px-5 py-2 text-sm font-medium transition-colors ${
+                  accurateMode
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+                    : 'bg-white/10 text-cyan-200 hover:bg-white/20'
+                }`}
+              >
+                🎯 Accurate
+              </button>
+            </div>
+            <p className="text-cyan-200/70 text-xs mt-2">
+              {accurateMode
+                ? '🎯 Accurate — Re-encodes video for frame-exact cuts. No overlap, no black frames. Slower.'
+                : '⚡ Fast — Stream copy, nearly instant. Cuts snap to keyframes; may cause a few seconds of overlap between clips.'}
+            </p>
+          </div>
+
           <div className="relative">
             <div
               ref={seekBarRef}

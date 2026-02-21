@@ -36,6 +36,7 @@ A powerful **Progressive Web App** for video splitting powered by **FFmpeg.wasm*
 - **Manual Adjustment**: Drag split markers to fine-tune segment boundaries
 - **Smart Validation**: Automatically merges segments shorter than 1 second
 - **Real-time Preview**: See segment durations as you adjust split points
+- **Split Mode Toggle**: Choose between ⚡ Fast (stream copy, keyframe-aligned) or 🎯 Accurate (re-encode, frame-exact cuts) depending on your needs
 
 ### 🚀 User Experience
 - **Custom Video Player**: Built-in player with full playback controls
@@ -88,8 +89,9 @@ npm run preview
 
 2. **Adjust Settings**: Choose maximum segment length (15s, 30s, 59s, or custom)
 3. **Fine-tune Splits**: Drag red markers on the seek bar to adjust split points
-4. **Export**: Click "Export & Download" to process the video
-5. **Download**: Download individual segments or all at once
+4. **Choose Split Mode**: Pick ⚡ Fast for instant stream copy, or 🎯 Accurate for frame-exact re-encoding
+5. **Export**: Click "Export & Download" to process the video
+6. **Download**: Download individual segments or all at once
 
 ## Tech Stack
 

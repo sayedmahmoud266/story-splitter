@@ -56,7 +56,8 @@ export async function splitVideo(
   videoFile: File,
   segments: VideoSegment[],
   onProgress?: (current: number, total: number) => void,
-  onFFmpegLoad?: () => void
+  onFFmpegLoad?: () => void,
+  accurateMode = false
 ): Promise<VideoSegment[]> {
   try {
     // Load FFmpeg
@@ -79,27 +80,46 @@ export async function splitVideo(
     // Process segments sequentially
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i]
-      const outputFileName = `output_${i}.${fileExtension}`
-      
+      // Accurate mode always outputs mp4 (H.264/AAC); fast mode preserves the original container
+      const outputFileName = accurateMode ? `output_${i}.mp4` : `output_${i}.${fileExtension}`
+      const outputMime = accurateMode ? 'video/mp4' : `video/${fileExtension}`
+
       const startTime = formatTimeForFFmpeg(segment.start)
       const duration = formatTimeForFFmpeg(segment.duration)
 
-      // Use FFmpeg to extract segment
-      // -ss before -i: input-side seek to nearest keyframe (avoids black frames from non-keyframe cuts)
-      // -c copy: copy streams without re-encoding (fast & lossless)
-      await ffmpeg.exec([
-        '-ss', startTime,
-        '-i', inputFileName,
-        '-t', duration,
-        '-c', 'copy',
-        '-avoid_negative_ts', 'make_zero',
-        outputFileName
-      ])
+      if (accurateMode) {
+        // Accurate mode: re-encode so cuts are frame-accurate with no black frames.
+        // -ss before -i: fast seek to keyframe before target, then decoder starts from there
+        // -c:v libx264 -preset ultrafast: fastest re-encode; output starts at the exact requested frame
+        // -crf 18: visually near-lossless quality
+        await ffmpeg.exec([
+          '-ss', startTime,
+          '-i', inputFileName,
+          '-t', duration,
+          '-c:v', 'libx264',
+          '-preset', 'ultrafast',
+          '-crf', '18',
+          '-c:a', 'aac',
+          '-avoid_negative_ts', 'make_zero',
+          outputFileName
+        ])
+      } else {
+        // Fast mode: stream copy (no re-encoding) — nearly instant but cuts snap to keyframes,
+        // which may cause a slight overlap of a few seconds between adjacent segments.
+        await ffmpeg.exec([
+          '-ss', startTime,
+          '-i', inputFileName,
+          '-t', duration,
+          '-c', 'copy',
+          '-avoid_negative_ts', 'make_zero',
+          outputFileName
+        ])
+      }
 
       // Read the output file
       const data = await ffmpeg.readFile(outputFileName)
       // Convert to regular Uint8Array to avoid SharedArrayBuffer issues
-      const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: `video/${fileExtension}` })
+      const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: outputMime })
 
       segmentsWithBlobs.push({ ...segment, blob })
 

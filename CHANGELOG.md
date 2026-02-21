@@ -5,6 +5,32 @@ All notable changes to the Story Splitter project will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-02-22
+
+### ✨ Feature & Bug Fix
+
+**Fast / Accurate Split Mode Toggle + Overlap Fix**
+
+### Added
+- **Split Mode Toggle**: New UI control in the editor lets users choose between two processing modes:
+  - **⚡ Fast** — Stream copy (`-c copy`), nearly instant. Cuts snap to the nearest keyframe, which may cause a few seconds of overlap between adjacent segments.
+  - **🎯 Accurate** — Re-encodes with `libx264 -preset ultrafast -crf 18`, slower but produces frame-exact cuts with no overlap and no black frames.
+
+### Fixed
+- **Segment Overlap**: The keyframe-snapping behaviour introduced in v0.2.2 (input-side `-ss`) caused adjacent segments to overlap by several seconds. Accurate mode resolves this by re-encoding from the exact requested frame.
+
+### Technical Details
+```typescript
+// Fast mode — stream copy, keyframe-aligned (may overlap):
+await ffmpeg.exec(['-ss', startTime, '-i', input, '-t', duration, '-c', 'copy', ...])
+
+// Accurate mode — re-encode for frame-exact cuts (no overlap, no black frames):
+await ffmpeg.exec(['-ss', startTime, '-i', input, '-t', duration,
+  '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '18', '-c:a', 'aac', ...])
+```
+
+---
+
 ## [0.2.2] - 2026-02-20
 
 ### 🔧 Bug Fix
